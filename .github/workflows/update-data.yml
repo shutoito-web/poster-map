@@ -1,0 +1,51 @@
+name: Update Map Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+  
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  update:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      - name: Install Python dependencies
+        run: pip install -r python-requirements.txt
+      - name: Setup Directory
+        run: mkdir -p public/data/block
+      - name: Download CSV
+        run: curl -sL "${{ secrets.CSV_URL }}" > public/data/all.csv
+      - name: Generate arealist.json
+        run: python -c "import pandas as pd; pd.read_csv('arealist.csv').to_json('public/data/arealist.json', orient='records', force_ascii=False)"
+      - name: Convert CSV to JSON
+        run: python csv2json_small.py public/data/all.csv public/data/
+      - name: Generate summary data
+        run: |
+          python summarize_progress.py public/data/summary.json
+          python summarize_progress_absolute.py public/data/summary_absolute.json
+      - name: Commit & push changes
+        run: |
+          git add -N .
+          if ! git diff --exit-code --quiet
+          then
+            git config user.name github-actions
+            git config user.email github-actions@github.com
+            git add .
+            git commit -m "Update data by GitHub Actions"
+            git push
+          fi
