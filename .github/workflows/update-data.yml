@@ -28,7 +28,7 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r python-requirements.txt
       - name: List files for debugging
-        run: ls -la
+        run: python -c "import os; print(os.listdir('.'))"
       - name: Setup Directory
         run: mkdir -p public/data/block
       - name: Download CSV
