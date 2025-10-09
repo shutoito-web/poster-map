@@ -3,7 +3,7 @@ name: Update Map Data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/30 * * * *'
   
 permissions:
   contents: write
@@ -27,6 +27,8 @@ jobs:
           cache-dependency-path: python-requirements.txt
       - name: Install Python dependencies
         run: pip install -r python-requirements.txt
+      - name: List files for debugging
+        run: ls -la
       - name: Setup Directory
         run: mkdir -p public/data/block
       - name: Download CSV
