@@ -5,6 +5,7 @@ import os
 def main(input_path, output_path):
     arealist = pd.read_csv("arealist.csv")
     data = pd.read_csv(input_path)
+    data['row_num'] = data.index + 2
 
     arealist = arealist[['area_id', 'area_name', 'area_block']]
     data.rename(columns={'area': 'area_name'}, inplace=True)
@@ -12,7 +13,7 @@ def main(input_path, output_path):
     # ファイルサイズ削減のためarea_nameをarea_idで置換
     merged_data = pd.merge(data, arealist, on='area_name', how='left', suffixes=('', ''))
 
-    final_data = merged_data.copy()[['area_id', 'name', 'lat', 'long', 'status', 'note']]
+    final_data = merged_data.copy()[['area_id', 'name', 'lat', 'long', 'status', 'note', 'address', 'row_num']]
 
     area_blocks = {
         'sendai': '仙台',
