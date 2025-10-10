@@ -61,12 +61,24 @@ function getPinNote(note) {
   }
 }
 
+function getPinAddress(address) {
+  if (address == null || address === "") {
+    return "情報なし"
+  } else {
+    return address
+  }
+}
+
 async function loadBoardPins(pins, layer, status=null) {
   const areaList = await getAreaList();
   if (status != null) {
     pins = pins.filter(item => item.status == status);
   }
   pins.forEach(pin => {
+    if (pin.lat == null || pin.long == null) {
+      console.error('Invalid pin data (lat/long is null):', pin);
+      return; // 座標が不正なピンはスキップ
+    }
     var marker = L.circleMarker([pin.lat, pin.long], {
       radius: 8,
       color: 'black',
@@ -76,7 +88,7 @@ async function loadBoardPins(pins, layer, status=null) {
       border: 1,
     })
     .addTo(layer);
-    marker.bindPopup(`<b>${areaList[pin.area_id]["area_name"]} ${pin.name}</b><br>ステータス: ${getStatusText(pin.status)}<br>備考: ${getPinNote(pin.note)}<br>座標: <a href="https://www.google.com/maps/search/${pin.lat},+${pin.long}" target="_blank" rel="noopener noreferrer">(${pin.lat}, ${pin.long})</a>`);
+    marker.bindPopup(`<b>${areaList[pin.area_id]["area_name"]} ${pin.name}</b><br>ステータス: ${getStatusText(pin.status)}<br>備考: ${getPinNote(pin.note)}<br>住所: ${getPinAddress(pin.address)}<br>座標: <a href="https://www.google.com/maps/search/${pin.lat},+${pin.long}" target="_blank" rel="noopener noreferrer">(${pin.lat}, ${pin.long})</a><hr><a href="https://script.google.com/macros/s/AKfycbxcQ_3FreTzUq7Ho3Y0b8RIkHIA0t6yG36cCs73g85ri71dEuFZ3VW2L7R259EPTVhz/exec?row=${pin.row_num}" target="_blank" rel="noopener noreferrer">ステータスを更新する</a>`);
   });
 }
 
