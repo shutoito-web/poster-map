@@ -3,7 +3,7 @@ name: Update Map Data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/60 * * * *'
+    - cron: '*/55 * * * *'
   
 permissions:
   contents: write
